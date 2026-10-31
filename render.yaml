@@ -1,0 +1,26 @@
+services:
+  - type: web
+    name: itqan-task-tracker-hq
+    runtime: python
+    region: frankfurt
+    plan: starter
+    buildCommand: pip install -r requirements.txt
+    startCommand: uvicorn app:app --host 0.0.0.0 --port $PORT --proxy-headers
+    healthCheckPath: /health
+    envVars:
+      - key: DATABASE_URL
+        fromDatabase:
+          name: itqan-tasks-postgres
+          property: connectionString
+      - key: SECRET_KEY
+        generateValue: true
+      - key: ITQAN_SETUP_KEY
+        sync: false
+      - key: COOKIE_SECURE
+        value: "true"
+
+databases:
+  - name: itqan-tasks-postgres
+    region: frankfurt
+    plan: basic-256mb
+    databaseName: itqan_tasks
